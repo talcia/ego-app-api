@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Question {
+	id			Int 		@id @default(autoincrement())
+	question 	String
+	answers 	Answer[]
+}
+
+model Answer {
+	id	Int @id
+	label String
+	question Question @relation(fields: [questionId], references: [id])
+	questionId Int
+}
+
+model User {
+	id	Int @id @default(autoincrement())
+	name String 
+	email String @unique
+	password String 
+	photoUrl String
+	Room Room[]
+}
+
+model Player {
+	id Int @id
+	admin Boolean	@default(false)
+	isEliminated Boolean @default(false)
+	isReady Boolean @default(false)
+	name String
+	points Int
+	status PlayerStatus
+	room Room @relation(fields: [roomId], references: [id])
+	roomId String
+}
+
+enum PlayerStatus {
+	ACCEPTED
+	PENDING
+	DECLINE
+}
+
+
+model Room {
+	id String @id
+	initialPoints Int @default(10)
+	numberOfRounds Int @default(10)
+	status RoomStatus
+	players Player[]
+	owner User @relation(fields: [ownerId], references: [id])
+	ownerId Int
+}
+
+enum RoomStatus {
+	PENDING
+	STARTED
+}
